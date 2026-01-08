@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Contactez-nous</title>
+    <style>
+        /* --- DESIGN GÉNÉRAL --- */
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            /* Un beau dégradé de fond moderne */
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        /* --- LA CARTE DU FORMULAIRE --- */
+        .contact-card {
+            background: rgba(255, 255, 255, 0.95); /* Blanc légèrement transparent */
+            padding: 40px;
+            border-radius: 20px;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.2); /* Ombre portée pour l'effet 3D */
+            width: 100%;
+            max-width: 400px; /* Largeur max pour que ce soit joli */
+            text-align: center;
+            transition: transform 0.3s ease;
+        }
+
+        .contact-card:hover {
+            transform: translateY(-5px); /* Petite animation au survol */
+        }
+
+        /* --- TYPOGRAPHIE --- */
+        h2 {
+            color: #333;
+            margin-bottom: 10px;
+            font-size: 28px;
+        }
+
+        p {
+            color: #666;
+            margin-bottom: 30px;
+            font-size: 14px;
+        }
+
+        /* --- CHAMPS DE SAISIE --- */
+        .form-group {
+            margin-bottom: 20px;
+            text-align: left;
+        }
+
+        label {
+            display: block;
+            color: #764ba2;
+            font-weight: bold;
+            margin-bottom: 5px;
+            font-size: 12px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        input, textarea {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e1e1e1;
+            border-radius: 8px;
+            background-color: #f9f9f9;
+            box-sizing: border-box; /* Important pour les marges */
+            font-size: 14px;
+            transition: all 0.3s;
+            font-family: inherit;
+        }
+
+        /* Effet quand on clique dans le champ */
+        input:focus, textarea:focus {
+            border-color: #764ba2;
+            background-color: #fff;
+            outline: none;
+            box-shadow: 0 0 8px rgba(118, 75, 162, 0.2);
+        }
+
+        textarea {
+            resize: vertical; /* Permet de redimensionner la hauteur */
+            min-height: 100px;
+        }
+
+        /* --- BOUTON --- */
+        button {
+            width: 100%;
+            padding: 15px;
+            background: linear-gradient(to right, #667eea, #764ba2);
+            color: white;
+            border: none;
+            border-radius: 50px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: background 0.3s, transform 0.2s;
+            box-shadow: 0 5px 15px rgba(118, 75, 162, 0.4);
+        }
+
+        button:hover {
+            transform: scale(1.02); /* Grossit légèrement */
+            background: linear-gradient(to right, #764ba2, #667eea);
+        }
+
+        button:active {
+            transform: scale(0.95); /* Effet de clic */
+        }
+
+    </style>
+</head>
+<body>
+
+    <div class="contact-card">
+        <h2>Contactez-moi</h2>
+        <p>Une question sur mes métriques ? Laissez un message.</p>
+
+        <form action="#" method="post">
+            
+            <div class="form-group">
+                <label for="nom">Nom</label>
+                <input type="text" id="nom" name="nom" placeholder="Votre nom" required>
+            </div>
+
+            <div class="form-group">
+                <label for="prenom">Prénom</label>
+                <input type="text" id="prenom" name="prenom" placeholder="Votre prénom" required>
+            </div>
+
+            <div class="form-group">
+                <label for="message">Message</label>
+                <textarea id="message" name="message" placeholder="Écrivez votre message ici..." required></textarea>
+            </div>
+
+            <button type="submit">Envoyer le message</button>
+
+        </form>
+    </div>
+
+</body>
+</html>
