@@ -1,40 +1,50 @@
 <html>
   <head>
     <meta charset="UTF-8" />
-    <title>Metrique</title>
+    <title>Histogramme Métrique</title>
     <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
   </head>
   <body>
-    <div id="chart_div"></div>
+    <div id="chart_div" style="width: 900px; height: 500px;"></div>
+
     <script>
+      // Chargement de l'API Google Charts
       google.charts.load('current', { packages: ['corechart'] });
       google.charts.setOnLoadCallback(drawBackgroundColor);
-     function drawBackgroundColor() {
-    function drawChart(data) {
-    // Convertir les données récupérées en un tableau utilisable par Google Charts
-    var dataTable = new google.visualization.DataTable();
-    dataTable.addColumn('string', 'Date');
-    dataTable.addColumn('number', 'Valeur');
-    data.results.forEach(entry => {
-      var date = new Date(entry.Jour * 1000);
-      dataTable.addRow([date.toLocaleDateString(), entry.temp]);
-    });
-    // Configurer les options du graphique en ligne
-    var options = {
-      title: 'Évolution des températures de la ville de Tawarano',
-      curveType: 'function',
-      legend: { position: 'bottom' }
-    };
-    var chart = new google.visualization.LineChart(document.getElementById('chart_div'));
-    chart.draw(dataTable, options);
-  }
-  // Récupération de données depuis notre API /tawarano/
-  fetch('/tawarano/')
-    .then(response => response.json())
-    .then(data => {
-      drawChart(data);
-    })
-}
+
+      function drawBackgroundColor() {
+        
+        function drawChart(data) {
+          // 1. Création de la table de données
+          var dataTable = new google.visualization.DataTable();
+          dataTable.addColumn('string', 'Date');
+          dataTable.addColumn('number', 'Valeur');
+
+          // 2. Remplissage des lignes avec les données reçues de l'API /tawarano/
+          data.results.forEach(entry => {
+            var date = new Date(entry.Jour * 1000);
+            dataTable.addRow([date.toLocaleDateString(), entry.temp]);
+          });
+
+          // 3. Configuration des options (Titre, légende...)
+          var options = {
+            title: 'Évolution des températures de Tawarano (Histogramme)',
+            legend: { position: 'bottom' }
+            // Pas besoin de styles complexes pour l'instant
+          };
+
+          // 4. C'est ICI que ça change : On utilise ColumnChart au lieu de LineChart
+          var chart = new google.visualization.ColumnChart(document.getElementById('chart_div'));
+          chart.draw(dataTable, options);
+        }
+
+        // Appel de ton API créée à l'exercice 3
+        fetch('/tawarano/')
+          .then(response => response.json())
+          .then(data => {
+            drawChart(data);
+          })
+      }
     </script>
   </body>
 </html>
