@@ -1,36 +1,56 @@
 name: Industrialisation continue sur le serveur Alwaysdata
-
-on: 
-  push:
-    branches: [ main, master ] # S'exécute sur main ou master
-
+on: push
 jobs:
-  Deploy:
+  Connexion:
     runs-on: ubuntu-latest
     steps:
-      # 1. GitHub récupère ton code sur la machine temporaire (Runner)
-      - name: Checkout du code
-        uses: actions/checkout@v4
-
-      # 2. On copie les fichiers du Runner vers Alwaysdata via SCP (Copie sécurisée)
-      - name: Copie des fichiers sur le serveur
-        uses: appleboy/scp-action@master
+      - name: Connexion SSH avec le serveur
+        uses: appleboy/ssh-action@master
         with:
           host: "ssh-${{ secrets.USERNAME }}.alwaysdata.net"
           username: ${{ secrets.USERNAME }}
           password: ${{ secrets.PASSWORD }}
-          source: "."
-          # On cible le dossier flask. Attention à bien avoir créé /www/flask comme demandé dans le TD
-          target: "/home/${{ secrets.USERNAME }}/www/flask"
-
-      # 3. On redémarre le site via l'API Alwaysdata
+          script: |
+            cd $HOME/www/
+  Copy:
+    needs: Connexion
+    runs-on: ubuntu-latest
+    steps:
+      - name: Connexion SSH avec le serveur
+        uses: appleboy/ssh-action@master
+        with:
+          host: "ssh-${{ secrets.USERNAME }}.alwaysdata.net"
+          username: ${{ secrets.USERNAME }}
+          password: ${{ secrets.PASSWORD }}
+          script: |
+            last_directory=$(basename ${{ runner.workspace }})
+            cd $HOME/www/
+            git clone https://github.com/${{ github.repository }}.git
+            # Vérifier si le répertoire de destination existe
+            if [ "$(ls -A ./flask)" ]; then
+              rsync -r ./$last_directory/ ./flask
+              rm -rf ./$last_directory
+            else
+              echo "Le répertoire flask de destination sur votre serveur n'existe pas"
+              exit 1
+            fi
+  Restart:
+    needs: Copy
+    runs-on: ubuntu-latest
+    steps:
       - name: Restart Alwaysdata site
         run: |
           response_code=$(curl -s -o /dev/null -w "%{http_code}" -X POST --basic --user "${{ secrets.ALWAYSDATA_TOKEN }}:" https://api.alwaysdata.com/v1/site/${{ secrets.ALWAYSDATA_SITE_ID }}/restart/)
-          
+          # Vérifier le code de réponse HTTP
           if [ "$response_code" -eq 204 ]; then
-            echo "✅ Site redémarré avec succès."
+            echo "Relance de votre site réussi"
+          elif [ "$response_code" -eq 404 ]; then
+            echo "Vous n'avez pas renseigner correctement votre secret ALWAYSDATA_SITE_ID"
+            exit 1  # Quitter avec un code d'erreur
+          elif [ "$response_code" -eq 401 ]; then
+            echo "Vous n'avez pas renseigner correctement votre secret ALWAYSDATA_TOKEN"
+          exit 1  # Quitter avec un code d'erreur
           else
-            echo "❌ Échec du redémarrage. Code réponse : $response_code"
-            exit 1
+            echo "Échec du redémarrage avec le code de réponse : $response_code"
+            exit 1  # Quitter avec un code d'erreur
           fi
