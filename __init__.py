@@ -42,9 +42,8 @@ def MaPremiereAPI():
 # --- EXERCICE 6 : API DE DONNÉES GITHUB ---
 @app.route('/commits-data/')
 def commits_data():
-    # ⚠️ IMPORTANT : Remplace ci-dessous par ton pseudo et le nom de ton repo
-    # Exemple : 'https://api.github.com/repos/TonyVang/MetsTonNomDeRepoIci/commits'
-    url = 'https://api.github.com/repos/{TonyESGI}/{5MCSI_Metriques}/commits'
+    # Correction effectuée : suppression des accolades {}
+    url = 'https://api.github.com/repos/TonyESGI/5MCSI_Metriques/commits'
     
     try:
         response = urlopen(url)
@@ -74,7 +73,7 @@ def commits_data():
         return jsonify(results=results)
         
     except Exception as e:
-        # En cas d'erreur (repo introuvable, privé, etc.)
+        # En cas d'erreur
         return jsonify({'error': str(e)})
 
 # --- EXERCICE 6 : LA PAGE D'AFFICHAGE ---
