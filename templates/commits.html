@@ -1,16 +1,70 @@
-<html>
-  <head>
-    <meta charset="UTF-8" />
-    <title>Mes Commits par Minute</title>
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mes Commits</title>
     <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
     <style>
-        body { font-family: sans-serif; text-align: center; margin-top: 50px; }
-        #chart_div { margin: auto; }
+        /* --- STYLE GLOBAL --- */
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            /* Le même beau dégradé que la page contact */
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            color: #333;
+        }
+
+        /* --- LA CARTE (CONTENEUR) --- */
+        .chart-card {
+            background: rgba(255, 255, 255, 0.95); /* Blanc presque opaque */
+            padding: 40px;
+            border-radius: 20px;
+            box-shadow: 0 20px 50px rgba(0,0,0,0.3); /* Belle ombre portée */
+            width: 90%;
+            max-width: 1000px; /* On limite la largeur pour les grands écrans */
+            text-align: center;
+        }
+
+        h2 {
+            margin-top: 0;
+            color: #4a4a4a;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            font-size: 24px;
+            margin-bottom: 30px;
+        }
+
+        /* --- LE GRAPHIQUE --- */
+        #chart_div {
+            width: 100%;
+            height: 500px;
+            /* Bordure subtile pour délimiter la zone graphique */
+            border: 1px solid #eee;
+            border-radius: 10px;
+        }
+        
+        .error-message {
+            color: #e74c3c;
+            font-weight: bold;
+            padding: 20px;
+            background: #fadbd8;
+            border-radius: 8px;
+        }
     </style>
-  </head>
-  <body>
-    <h2>Activité des Commits (Minute par Minute)</h2>
-    <div id="chart_div" style="width: 900px; height: 500px;">Chargement du graphique...</div>
+</head>
+<body>
+
+    <div class="chart-card">
+        <h2>Activité du projet (Minute par Minute)</h2>
+        <div id="chart_div">Chargement des données...</div>
+    </div>
 
     <script>
       google.charts.load('current', { packages: ['corechart'] });
@@ -21,27 +75,58 @@
           .then(response => response.json())
           .then(data => {
             
-            // Si une erreur est renvoyée par Python
             if(data.error) {
-                document.getElementById('chart_div').innerHTML = "Erreur : Vérifiez l'URL du repo dans __init__.py <br>" + data.error;
+                document.getElementById('chart_div').innerHTML = 
+                    "<div class='error-message'>Erreur API GitHub : " + data.error + "</div>";
                 return;
             }
 
             var dataTable = new google.visualization.DataTable();
             dataTable.addColumn('string', 'Minute');
-            dataTable.addColumn('number', 'Nombre de Commits');
+            dataTable.addColumn('number', 'Commits');
 
-            // On remplit le graphique avec les données reçues
             data.results.forEach(entry => {
               dataTable.addRow([entry.minute.toString(), entry.count]);
             });
 
+            // --- C'EST ICI QUE LA MAGIE OPÈRE (OPTIONS DU DESIGN) ---
             var options = {
               title: 'Distribution des commits selon la minute de l\'heure',
-              hAxis: {title: 'Minute (0-59)'},
-              vAxis: {title: 'Nombre de commits'},
+              titleTextStyle: { color: '#555', fontSize: 16, bold: false },
+              
+              // Fond transparent pour se fondre dans la carte
+              backgroundColor: 'transparent',
+              
+              // Couleurs des barres (Un violet qui rappelle le fond)
+              colors: ['#764ba2'], 
+              
+              // Police moderne
+              fontName: 'Segoe UI',
+              
+              // Configuration de la légende
               legend: { position: 'none' },
-              colors: ['#e0440e'] // Une petite couleur orange style Git
+              
+              // Zone de dessin (pour utiliser plus d'espace)
+              chartArea: { width: '85%', height: '70%' },
+              
+              // Animation au chargement (Effet "Wouah")
+              animation: {
+                startup: true,
+                duration: 1000,
+                easing: 'out',
+              },
+              
+              // Axex (Gris clair pour ne pas surcharger)
+              hAxis: {
+                title: 'Minute (0-59)',
+                textStyle: { color: '#777' },
+                titleTextStyle: { color: '#777', italic: false }
+              },
+              vAxis: {
+                title: 'Nombre de commits',
+                gridlines: { color: '#eee' }, // Grille très légère
+                minValue: 0
+              }
             };
 
             var chart = new google.visualization.ColumnChart(document.getElementById('chart_div'));
@@ -49,9 +134,6 @@
           })
           .catch(error => {
               console.error('Erreur:', error);
-              document.getElementById('chart_div').innerText = "Impossible de récupérer les données.";
+              document.getElementById('chart_div').innerHTML = "<div class='error-message'>Erreur de connexion</div>";
           });
       }
-    </script>
-  </body>
-</html>
