@@ -39,5 +39,48 @@ def monhistogramme():
 def MaPremiereAPI():
     return render_template("contact.html")
 
+# --- EXERCICE 6 : API DE DONNÉES GITHUB ---
+@app.route('/commits-data/')
+def commits_data():
+    # ⚠️ IMPORTANT : Remplace ci-dessous par ton pseudo et le nom de ton repo
+    # Exemple : 'https://api.github.com/repos/TonyVang/MetsTonNomDeRepoIci/commits'
+    url = 'https://api.github.com/repos/{TonyESGI}/{5MCSI_Metriques}/commits'
+    
+    try:
+        response = urlopen(url)
+        raw_content = response.read()
+        json_content = json.loads(raw_content.decode('utf-8'))
+        
+        # Dictionnaire pour compter : { "minute": nombre_de_commits }
+        compteur_minutes = {}
+        
+        for commit in json_content:
+            date_string = commit['commit']['author']['date']
+            # On utilise l'indice fourni pour transformer le texte en objet Date
+            date_object = datetime.strptime(date_string, '%Y-%m-%dT%H:%M:%SZ')
+            minute = date_object.minute
+            
+            # On incrémente le compteur pour cette minute
+            if minute in compteur_minutes:
+                compteur_minutes[minute] += 1
+            else:
+                compteur_minutes[minute] = 1
+        
+        # On formate les résultats pour le graphique (liste triée)
+        results = []
+        for minute, nombre in sorted(compteur_minutes.items()):
+            results.append({'minute': minute, 'count': nombre})
+            
+        return jsonify(results=results)
+        
+    except Exception as e:
+        # En cas d'erreur (repo introuvable, privé, etc.)
+        return jsonify({'error': str(e)})
+
+# --- EXERCICE 6 : LA PAGE D'AFFICHAGE ---
+@app.route('/commits/')
+def graph_commits():
+    return render_template("commits.html")
+
 if __name__ == "__main__":
   app.run(debug=True)
